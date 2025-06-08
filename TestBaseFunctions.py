@@ -1,6 +1,5 @@
 import unittest
 from GameBase import *
-
 class MyTestCase(unittest.TestCase):
     def test_creation_deck(self):
         deck = create_deck()
@@ -22,6 +21,15 @@ class MyTestCase(unittest.TestCase):
         card3 = Card('Черви', '10')
         self.assertEqual(card1 == card3, False)
 
+    def test_can_beat(self):
+        trump_suit = "Черви"
+        card1 = Card("Крести", "6")
+        card2 = Card("Крести", "7")
+        card3 = Card("Черви", "6")
+        self.assertTrue(card2.can_beat(card1, trump_suit))
+        self.assertFalse(card1.can_beat(card2, trump_suit))
+        self.assertTrue(card3.can_beat(card1, trump_suit))
+        self.assertFalse(card1.can_beat(card3, trump_suit))
 
 if __name__ == '__main__':
     unittest.main()
