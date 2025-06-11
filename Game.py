@@ -23,6 +23,30 @@ class Game:
         self.table = []
         self.attacker = "player"  # Игрок начинает атаку
 
+    def handle_take_cards(self, taker_role):
+        """
+        Обрабатывает сценарий, когда защищающийся игрок/бот забирает карты со стола.
+        Корректно меняет атакующего.
+        """
+        logging.info(f"{taker_role.capitalize()} takes cards. Round failed to be beaten.")
+
+        if taker_role == "player":
+            self.player_hand.extend(self.table)
+            # Если игрок взял карты, следующим атакует тот, кто его атаковал.
+            # В нашей 1 на 1 игре, это будет бот.
+            self.attacker = "bot"
+        elif taker_role == "bot":
+            self.bot_hand.extend(self.table)
+            # Если бот взял карты, следующим атакует тот, кто его атаковал.
+            # В нашей 1 на 1 игре, это будет игрок.
+            self.attacker = "player"
+        else:
+            error_logger.error(f"Invalid taker_role provided to handle_take_cards: {taker_role}")
+            raise ValueError("Invalid taker_role")
+
+        self.table = []  # Стол очищается
+        self.draw_cards()  # Игроки добирают карты
+
     def end_round_success(self):
         """Обрабатывает успешное завершение раунда (карты уходят в сброс и добираются)."""
         logging.info("Round ended successfully. Cards discarded.")

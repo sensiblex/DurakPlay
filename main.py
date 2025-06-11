@@ -18,19 +18,15 @@ def player_attack(game):
                 return
             if game.player_move(card_index):
                 print(f"Вы атакуете: {game.table[-1]}")
-                if not game.bot_move():
-                    print("Робот не может отбиться и забирает карты")
-                    game.bot_hand.extend(game.table)
-                    game.table = []
-                    game.draw_cards()
-                    game.attacker = "player"  # Если бот забрал, игрок продолжает атаковать
-                else:
+                # Проверяем, отбился ли бот
+                if not game.bot_move():  # Бот не смог отбиться
+                    game.handle_take_cards("bot")  # <-- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
+                else:  # Робот отбивается
                     print(f"Робот отбивается: {game.table[-1]}")
                     print("Бито! Карты уходят в сброс")
                     game.end_round_success()
-                    # Если робот отбился, он становится атакующим
-                    game.set_next_attacker_after_defense_success("bot")  # <--- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
-                return
+                    game.set_next_attacker_after_defense_success("bot")
+                return  # Выходим после хода (атаки) игрока
             else:
                 print("Невозможно сыграть эту карту, попробуйте другую")
         except (ValueError, IndexError):
@@ -41,19 +37,14 @@ def player_defense(game):
         print("Ваш ход (защита). Введите индекс карты для отбоя или -1 чтобы взять карты:")
         try:
             card_index = int(input())
-            if card_index == -1:
-                print("Вы берете карты")
-                game.player_hand.extend(game.table)
-                game.table = []
-                game.draw_cards()
-                game.attacker = "bot"  # Если игрок забрал, бот продолжает атаковать
+            if card_index == -1:  # Игрок решил взять карты
+                game.handle_take_cards("player")  # <-- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
                 return
             if game.player_move(card_index):
                 print(f"Вы отбиваете: {game.table[-1]}")
                 print("Бито! Карты уходят в сброс")
-                game.end_round_success()
-                # Если игрок отбился, он становится атакующим
-                game.set_next_attacker_after_defense_success("player")  # <--- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
+                game.end_round_success()  # <-- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
+                game.set_next_attacker_after_defense_success("player")  # <-- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
                 return
             else:
                 print("Невозможно сыграть эту карту, попробуйте другую")
