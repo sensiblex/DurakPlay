@@ -1,6 +1,16 @@
 import random
-from GameBase import Card, create_deck
+import logging
+from GameBase import create_deck
 
+# Настраиваем логирование
+logging.basicConfig(level=logging.INFO, filename="game-log.log", filemode="w",
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+error_logger = logging.getLogger('game_errors')
+error_handler = logging.FileHandler('game_errors.log')
+error_handler.setLevel(logging.ERROR)
+error_formatter = logging.Formatter('%(name)s:%(levelname)s:%(message)s')
+error_handler.setFormatter(error_formatter)
+error_logger.addHandler(error_handler)
 
 class Game:
     def __init__(self):
@@ -15,8 +25,10 @@ class Game:
 
     def player_move(self, card_index):
         if card_index < 0 or card_index >= len(self.player_hand):
+            error_logger.error(f"Invalid card index: {card_index}")
             return False
         card = self.player_hand[card_index]
+        logging.info(f"Player attempts to play {card}")
 
         # Если игрок атакует, он может положить любую карту
         # Если защищается, должен бить карту на столе
@@ -24,8 +36,10 @@ class Game:
                 card.can_beat(table_card, self.trump_card.suit) for table_card in self.table)):
             self.table.append(card)
             self.player_hand.pop(card_index)
+            logging.info(f"Player's move with {card} was successful.")
 
             return True
+        logging.warning(f"Player's move with {card} was not valid.")
         return False
 
     def bot_move(self):
