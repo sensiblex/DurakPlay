@@ -23,13 +23,13 @@ def player_attack(game):
                     game.bot_hand.extend(game.table)
                     game.table = []
                     game.draw_cards()
-                    game.attacker = "bot"
+                    game.attacker = "player"  # Если бот забрал, игрок продолжает атаковать
                 else:
                     print(f"Робот отбивается: {game.table[-1]}")
                     print("Бито! Карты уходят в сброс")
-                    game.table = []
-                    game.draw_cards()
-                    game.attacker = "bot"
+                    game.end_round_success()
+                    # Если робот отбился, он становится атакующим
+                    game.set_next_attacker_after_defense_success("bot")  # <--- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
                 return
             else:
                 print("Невозможно сыграть эту карту, попробуйте другую")
@@ -46,14 +46,14 @@ def player_defense(game):
                 game.player_hand.extend(game.table)
                 game.table = []
                 game.draw_cards()
-                game.attacker = "player"
+                game.attacker = "bot"  # Если игрок забрал, бот продолжает атаковать
                 return
             if game.player_move(card_index):
                 print(f"Вы отбиваете: {game.table[-1]}")
                 print("Бито! Карты уходят в сброс")
-                game.table = []
-                game.draw_cards()
-                game.attacker = "player"
+                game.end_round_success()
+                # Если игрок отбился, он становится атакующим
+                game.set_next_attacker_after_defense_success("player")  # <--- ИСПОЛЬЗУЕМ НОВЫЙ МЕТОД
                 return
             else:
                 print("Невозможно сыграть эту карту, попробуйте другую")
@@ -64,10 +64,11 @@ def bot_attack(game):
     print("Робот атакует...")
     if game.bot_move():
         print(f"Робот атакует: {game.table[-1]}")
-        player_defense(game)
+        player_defense(game) # Передаем управление игроку для защиты
+        # Логика смены атакующего уже в player_defense
     else:
         print("Робот не может атаковать, передает ход")
-        game.attacker = "player"
+        game.attacker = "player"  # <--- Убедитесь, что эта строка есть и она такая
 
 def main():
     game = Game()

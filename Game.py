@@ -23,6 +23,20 @@ class Game:
         self.table = []
         self.attacker = "player"  # Игрок начинает атаку
 
+    def end_round_success(self):
+        """Обрабатывает успешное завершение раунда (карты уходят в сброс и добираются)."""
+        logging.info("Round ended successfully. Cards discarded.")
+        self.table = []
+        self.draw_cards() # Передача этой логики сюда
+
+    def set_next_attacker_after_defense_success(self, defender_role):
+        """Устанавливает следующего атакующего после успешного отбоя.
+        Args:
+            defender_role (str): Роль игрока, который успешно отбился ('player' или 'bot').
+        """
+        logging.info(f"Setting attacker to {defender_role} after successful defense.")
+        self.attacker = defender_role
+
     def player_move(self, card_index):
         if card_index < 0 or card_index >= len(self.player_hand):
             error_logger.error(f"Invalid card index: {card_index}")
